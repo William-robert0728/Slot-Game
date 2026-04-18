@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:board": "node scripts/sync-board-from-root.mjs"
   },
   "dependencies": {
     "@google/model-viewer": "^3.5.0",

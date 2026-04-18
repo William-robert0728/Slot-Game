@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
@@ -5,6 +6,15 @@ import react from '@vitejs/plugin-react';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, '..');
+const parentBoard = path.resolve(repoRoot, 'PhaserBattleBoard.jsx');
+const bundledBoard = path.resolve(__dirname, 'src/PhaserBattleBoard.jsx');
+/** Parent file when monorepo is checked out; bundled copy when Vercel uses app folder only as root. */
+const boardPath = fs.existsSync(parentBoard) ? parentBoard : bundledBoard;
+if (!fs.existsSync(boardPath)) {
+  throw new Error(
+    'PhaserBattleBoard.jsx missing. From repo root run: Copy-Item PhaserBattleBoard.jsx phaser-battle-board-test/src/PhaserBattleBoard.jsx (or npm run sync:board).'
+  );
+}
 
 /** PhaserBattleBoard.jsx imports ../lib/* which resolves outside this package; send those to harness stubs. */
 function phaserBoardLibRedirect() {
@@ -34,16 +44,19 @@ function phaserBoardLibRedirect() {
   };
 }
 
+const fsAllow = new Set([__dirname, path.dirname(boardPath)]);
+if (fs.existsSync(repoRoot)) fsAllow.add(repoRoot);
+
 export default defineConfig({
   plugins: [react(), phaserBoardLibRedirect()],
   resolve: {
     alias: {
-      '@PhaserBattleBoard.jsx': path.resolve(repoRoot, 'PhaserBattleBoard.jsx'),
+      '@PhaserBattleBoard.jsx': boardPath,
     },
   },
   server: {
     fs: {
-      allow: [repoRoot, __dirname],
+      allow: [...fsAllow],
     },
   },
   define: {
