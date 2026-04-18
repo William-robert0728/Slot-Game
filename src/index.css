@@ -1,0 +1,16 @@
+* {
+  box-sizing: border-box;
+}
+
+model-viewer {
+  display: block;
+}
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: #050810;
+  color: #e2e8f0;
+  font-family: system-ui, sans-serif;
+}
